@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, '/public')))
 
 wss.on('connection', (ws, req) => {
   let location = url.parse(req.url, true)
-  let initMessage = {message: `connection made at ${Date.now()}`}
+  let initMessage = {type: 'connection', timestamp: Date.now()}
   ws.send(JSON.stringify(initMessage))
   cs.push(ws)
   console.log("New Client Connected :", cs.length)

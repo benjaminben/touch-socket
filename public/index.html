@@ -30,18 +30,78 @@
     var message = document.getElementById('message')
     var canvas = document.getElementById('canvas')
 
-    canvas.addEventListener('click', function(e) {
-      var dims = canvas.getBoundingClientRect()
-      var x = (e.clientX - dims.left) / dims.width
-      var y = (e.clientY - dims.top) / dims.height
-      ws.send(JSON.stringify({x:x, y:y}))
-    })
+    // canvas.addEventListener('click', function(e) {
+    //   var dims = canvas.getBoundingClientRect()
+    //   var x = (e.clientX - dims.left) / dims.width
+    //   var y = 1 - (e.clientY - dims.top) / dims.height // subtract from 1 bc flipped
+    //   ws.send(JSON.stringify({type: 'coords', x:x, y:y}))
+    // })
+
+    canvas.addEventListener('mousedown', handleMouseDown)
+    canvas.addEventListener('touchstart', handleTouchStart)
 
     ws.onmessage = function (event) {
         var receivedMessage = event.data
         console.log(receivedMessage)
         message.innerHtml = receivedMessage
     }
+
+    function handleMouseDown(e) {
+      e.preventDefault()
+      canvas.removeEventListener('mousedown', handleMouseDown)
+      canvas.addEventListener('mousemove', handleMouseMove)
+      canvas.addEventListener('mouseup', handleMouseUp)
+
+      var dims = canvas.getBoundingClientRect()
+      var x = (e.clientX - dims.left) / dims.width
+      var y = 1 - (e.clientY - dims.top) / dims.height // subtract from 1 bc flipped
+      ws.send(JSON.stringify({type: 'coords', x:x, y:y}))
+    }
+
+    function handleMouseMove(e) {
+      e.preventDefault()
+
+      var dims = canvas.getBoundingClientRect()
+      var x = (e.clientX - dims.left) / dims.width
+      var y = 1 - (e.clientY - dims.top) / dims.height // subtract from 1 bc flipped
+      ws.send(JSON.stringify({type: 'coords', x:x, y:y}))
+    }
+
+    function handleMouseUp(e) {
+      e.preventDefault()
+      canvas.removeEventListener('mousemove', handleMouseMove)
+      canvas.removeEventListener('mouseup', handleMouseUp)
+      canvas.addEventListener('mousedown', handleMouseDown)
+    }
+
+    function handleTouchStart(e) {
+      e.preventDefault()
+      canvas.removeEventListener('touchstart', handleTouchStart)
+      canvas.addEventListener('touchmove', handleTouchMove)
+      canvas.addEventListener('touchend', handleTouchEnd)
+
+      var dims = canvas.getBoundingClientRect()
+      var x = (e.targetTouches[0].clientX - dims.left) / dims.width
+      var y = 1 - (e.targetTouches[0].clientY - dims.top) / dims.height // subtract from 1 bc flipped
+      ws.send(JSON.stringify({type: 'coords', x:x, y:y}))
+    }
+
+    function handleTouchMove(e) {
+      e.preventDefault()
+
+      var dims = canvas.getBoundingClientRect()
+      var x = (e.targetTouches[0].clientX - dims.left) / dims.width
+      var y = 1 - (e.targetTouches[0].clientY - dims.top) / dims.height // subtract from 1 bc flipped
+      ws.send(JSON.stringify({type: 'coords', x:x, y:y}))
+    }
+
+    function handleTouchEnd(e) {
+      e.preventDefault()
+      canvas.removeEventListener('touchend', handleTouchMove)
+      canvas.removeEventListener('touchmove', handleTouchEnd)
+      canvas.addEventListener('touchstart', handleTouchStart)
+    }
+
   })()
   </script>
 </body>
