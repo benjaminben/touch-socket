@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <style>
+    body {
+      margin: 0;
+    }
+    main {
+      padding: 1em 1em 0;
+    }
+    #canvas {
+      display: block;
+      margin: 0 auto 1em;
+      width: 90vw;
+      height: 50.625vw;
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <canvas id="canvas"></canvas>
+    <div>Message from server : <span id='message'></span></div>
+  </main>
+
+  <script>
+  (function() {
+    var host = location.hostname
+    var ws = new WebSocket('ws://' + host)
+    var message = document.getElementById('message')
+    var canvas = document.getElementById('canvas')
+
+    canvas.addEventListener('click', function(e) {
+      var dims = canvas.getBoundingClientRect()
+      var x = (e.clientX - dims.left) / dims.width
+      var y = (e.clientY - dims.top) / dims.height
+      ws.send(JSON.stringify({x:x, y:y}))
+    })
+
+    ws.onmessage = function (event) {
+        var receivedMessage = event.data
+        console.log(receivedMessage)
+        message.innerHtml = receivedMessage
+    }
+  })()
+  </script>
+</body>
+</html>
